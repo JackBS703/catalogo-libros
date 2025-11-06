@@ -7,24 +7,24 @@ Sistema web full-stack para la gestión de catálogo de libros con generación d
 
 ## 📋 Descripción
 
-Aplicación web que permite realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar) sobre un catálogo de libros, con funcionalidad de generación de informes estadísticos en formato XML.[1][2]
+Aplicación web que permite realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar) sobre un catálogo de libros, con funcionalidad de generación de informes estadísticos en formato XML.
 
 ## 🚀 Tecnologías y Versiones
 
 ### Backend
-- **Node.js**: v22.11.1
-- **Express**: v5.1.0 (Framework web)[3][4]
-- **Mongoose**: v8.9.5 (ODM para MongoDB)[5][6]
-- **xml2js**: v0.6.2 (Generación y parseo de XML)[1]
+- **Node.js**: v22.21.1
+- **Express**: v5.1.0 (Framework web)
+- **Mongoose**: v8.9.5 (ODM para MongoDB)
+- **xml2js**: v0.6.2 (Generación y parseo de XML)
 - **cors**: v2.8.5 (Manejo de CORS)
 - **dotenv**: v16.4.5 (Variables de entorno)
 
 **Herramientas de desarrollo:**
-- **nodemon**: v3.1.4 (Auto-reload del servidor en desarrollo)
+- **nodemon**: v3.1.4 (Auto-reload del servidor)
 
 ### Frontend
-- **React**: v18.3.1[7][8]
-- **Vite**: v6.0.1 (Build tool y dev server)[9]
+- **React**: v18.3.1
+- **Vite**: v6.0.1 (Build tool)
 - **Axios**: v1.7.7 (Cliente HTTP)
 - **React Router DOM**: v6.28.0 (Enrutamiento)
 
@@ -34,32 +34,33 @@ Aplicación web que permite realizar operaciones CRUD (Crear, Leer, Actualizar, 
 ### Despliegue
 - **Frontend**: Render Static Site
 - **Backend**: Render Web Service
-- **Base de datos**: MongoDB Atlas (Cloud)
 
 ## 📁 Estructura del Proyecto
 
 ```
 catalogo-libros/
 ├── backend/
-│   ├── config/           # Configuración de base de datos
-│   ├── controllers/      # Lógica de negocio
-│   ├── models/          # Modelos de Mongoose
-│   ├── routes/          # Rutas de la API
-│   ├── utils/           # Utilidades (generador XML)
-│   ├── middleware/      # Middlewares personalizados
-│   ├── .env             # Variables de entorno
+│   ├── config/
+│   │   └── db.js           # Configuración de conexión a MongoDB
+│   ├── controllers/        # Lógica de negocio (CRUD, informes)
+│   ├── models/            # Esquemas de Mongoose
+│   ├── routes/            # Rutas de la API REST
+│   ├── utils/             # Utilidades (generador XML)
+│   ├── middleware/        # Middlewares personalizados
+│   ├── .env               # Variables de entorno
 │   ├── .gitignore
 │   ├── package.json
-│   └── server.js        # Punto de entrada del servidor
+│   └── server.js          # Punto de entrada
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/  # Componentes reutilizables
-│   │   ├── pages/       # Páginas principales
-│   │   ├── services/    # Servicios API (Axios)
-│   │   ├── utils/       # Utilidades del frontend
-│   │   ├── App.jsx      # Componente principal
-│   │   └── main.jsx     # Punto de entrada
+│   │   ├── components/    # Componentes reutilizables
+│   │   ├── pages/         # Páginas principales
+│   │   ├── services/      # Servicios API (Axios)
+│   │   ├── utils/         # Utilidades
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   └── main.jsx
 │   ├── public/
 │   ├── index.html
 │   ├── vite.config.js
@@ -72,98 +73,118 @@ catalogo-libros/
 ## ⚙️ Instalación y Configuración
 
 ### Requisitos Previos
-- Node.js v20.19+ o v22.x[10]
+- Node.js v20.19+ o v22.x
 - npm v10+
 - Cuenta en MongoDB Atlas
 - Git instalado
 
 ### 1. Clonar el repositorio
 
-```bash
-git clone https://github.com/tu-usuario/catalogo-libros.git
+```
+git clone https://github.com/JackBS703/catalogo-libros.git
 cd catalogo-libros
 ```
 
-### 2. Configurar el Backend
+### 2. Configurar MongoDB Atlas
 
-```bash
-# Navegar a la carpeta backend
+1. Ve a [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register)
+2. Crea una cuenta y un cluster M0 (gratuito)
+3. Crea un usuario de base de datos
+4. Obtén el connection string
+5. Agrega acceso desde `0.0.0.0/0` en Network Access
+
+### 3. Configurar el Backend
+
+```
 cd backend
 
 # Instalar dependencias
 npm install
 
-# Crear archivo .env con las siguientes variables
-# (copia .env.example si existe)
+# Crear archivo .env
 ```
 
-**Contenido del archivo `.env`:**
-```env
+**Contenido del `backend/.env`:**
+```
 PORT=5000
-MONGODB_URI=tu_connection_string_de_mongodb_atlas
+MONGODB_URI=mongodb+srv://usuario:password@cluster.xxxxx.mongodb.net/catalogo-libros?retryWrites=true&w=majority
 NODE_ENV=development
 ```
 
-### 3. Configurar el Frontend
+### 4. Configurar el Frontend
 
-```bash
-# Desde la raíz del proyecto
+```
 cd ../frontend
 
 # Instalar dependencias
 npm install
 ```
 
-**Configurar URL del backend:**
-Crea un archivo `.env` en la carpeta `frontend`:
-```env
+**Crear `frontend/.env`:**
+```
 VITE_API_URL=http://localhost:5000
 ```
 
 ## 🏃‍♂️ Ejecutar en Desarrollo
 
-### Iniciar el Backend
+### Terminal 1 - Backend
 
-```bash
+```
 cd backend
 npm run dev
 ```
-El servidor estará corriendo en: `http://localhost:5000`
 
-### Iniciar el Frontend
+Esperado:
+```
+MongoDB conectado: cluster0-xxxxx.mongodb.net
+Servidor corriendo en http://localhost:5000
+```
 
-```bash
+### Terminal 2 - Frontend
+
+```
 cd frontend
 npm run dev
 ```
-La aplicación estará disponible en: `http://localhost:5173`
 
-## 🔌 Endpoints de la API
+Esperado:
+```
+VITE v6.0.1  ready in XXX ms
+➜  Local:   http://localhost:5173/
+```
+
+### Abrir en el navegador
+
+- **Frontend**: http://localhost:5173
+- **Backend**: http://localhost:5000 (prueba la API)
+
+## 🔌 Endpoints de la API (Por implementar)
 
 ### Libros (CRUD)
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/books` | Obtener todos los libros |
-| GET | `/api/books/:id` | Obtener un libro por ID |
-| POST | `/api/books` | Crear un nuevo libro |
-| PUT | `/api/books/:id` | Actualizar un libro existente |
-| DELETE | `/api/books/:id` | Eliminar un libro |
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| GET | `/api/books` | Obtener todos los libros | ⏳ Por hacer |
+| GET | `/api/books/:id` | Obtener un libro por ID | ⏳ Por hacer |
+| POST | `/api/books` | Crear un nuevo libro | ⏳ Por hacer |
+| PUT | `/api/books/:id` | Actualizar un libro | ⏳ Por hacer |
+| DELETE | `/api/books/:id` | Eliminar un libro | ⏳ Por hacer |
 
 ### Informes XML
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/reports/xml` | Generar informe XML completo |
-| GET | `/api/reports/stats` | Obtener estadísticas en JSON |
-| GET | `/api/reports/download` | Descargar archivo XML |
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| GET | `/api/reports/xml` | Generar informe XML completo | ⏳ Por hacer |
+| GET | `/api/reports/stats` | Obtener estadísticas en JSON | ⏳ Por hacer |
+| GET | `/api/reports/download` | Descargar archivo XML | ⏳ Por hacer |
 
 ## 📊 Modelo de Datos
 
 ### Libro (Book)
 
-```javascript
+```
 {
+  _id: ObjectId,
   titulo: String (requerido),
   autor: String (requerido),
   isbn: String (requerido, único),
@@ -179,16 +200,16 @@ La aplicación estará disponible en: `http://localhost:5173`
 ## 📦 Scripts Disponibles
 
 ### Backend
-```bash
+```
 npm start          # Inicia el servidor en modo producción
-npm run dev        # Inicia el servidor con nodemon (desarrollo)
+npm run dev        # Inicia con nodemon (desarrollo)
 ```
 
 ### Frontend
-```bash
-npm run dev        # Inicia el servidor de desarrollo de Vite
-npm run build      # Genera el build de producción
-npm run preview    # Previsualiza el build de producción
+```
+npm run dev        # Inicia servidor de desarrollo
+npm run build      # Genera build de producción
+npm run preview    # Previsualiza build de producción
 ```
 
 ## 🌐 Despliegue en Render
@@ -196,69 +217,51 @@ npm run preview    # Previsualiza el build de producción
 ### Backend
 1. Conectar repositorio de GitHub a Render
 2. Crear un **Web Service**
-3. Configurar variables de entorno (MONGODB_URI, NODE_ENV=production)
-4. Build command: `cd backend && npm install`
-5. Start command: `cd backend && npm start`
+3. Build command: `cd backend && npm install`
+4. Start command: `cd backend && npm start`
+5. Variables de entorno:
+   - `MONGODB_URI`: Tu connection string
+   - `NODE_ENV`: `production`
 
 ### Frontend
 1. Crear un **Static Site** en Render
 2. Build command: `cd frontend && npm install && npm run build`
 3. Publish directory: `frontend/dist`
-4. Agregar variable de entorno: `VITE_API_URL=URL_de_tu_backend`
+4. Variable de entorno:
+   - `VITE_API_URL`: URL de tu backend en Render
 
-## 🔒 Variables de Entorno
+## 📝 Estado del Proyecto
 
-### Backend (.env)
-```env
-PORT=5000
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/dbname
-NODE_ENV=production
-```
+### ✅ Completado
+- [x] Configuración inicial del proyecto
+- [x] Backend y Frontend conectados
+- [x] Conexión a MongoDB Atlas establecida
+- [x] Interfaz de prueba con estado de conexión
+- [x] Diseño mejorado de la página de inicio
 
-### Frontend (.env)
-```env
-VITE_API_URL=https://tu-backend.onrender.com
-```
-
-## 🎯 Funcionalidades Principales
-
-- ✅ CRUD completo de libros
-- ✅ Validación de datos
-- ✅ Generación de informes XML con estadísticas
-- ✅ Visualización de árbol XML en el frontend[2]
-- ✅ Cálculo de totales y porcentajes por género[2]
-- ✅ Interfaz responsive con React
-- ✅ API RESTful con Express
-- ✅ Despliegue en la nube (trabajo independiente)[2]
+### ⏳ En desarrollo
+- [ ] Modelo de Libro (Mongoose schema)
+- [ ] Controladores CRUD
+- [ ] Rutas de API REST
+- [ ] Componentes React para formulario de libros
+- [ ] Componentes React para listar libros
+- [ ] Sistema de informes XML
+- [ ] Visualización de árbol XML
+- [ ] Cálculo de estadísticas
+- [ ] Despliegue en Render
 
 ## 👥 Autores
 
-[Tu nombre y el de tu compañero/a]
+Mariana Montoya Sepulveda - Mateo Berrio Cardona
 
 ## 📅 Fecha de Entrega
 
-18 de noviembre de 2025[2]
+18 de noviembre de 2025
 
 ## 📄 Licencia
 
-Este proyecto es de uso académico para la asignatura de Aplicaciones y Tendencias.
+Proyecto académico para la asignatura de Programacion Distribuida y Paralela.
 
-***
+---
 
-**Nota**: Este proyecto fue desarrollado con fines educativos como parte de la entrega del curso de Aplicaciones y Tendencias.[2]
-
-***
-
-[1](https://ironpdf.com/nodejs/blog/node-help/xml2js-npm/)
-[2](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/67191826/c184d55c-48ad-44a2-b01e-a09325ac9cc0/image.jpg)
-[3](https://expressjs.com/en/changelog/)
-[4](https://www.npmjs.com/package/express)
-[5](https://mongoosejs.com/docs/version-support.html)
-[6](https://www.opswat.com/blog/technical-discovery-mongoose-cve-2025-23061-cve-2024-53900)
-[7](https://dev.to/sovannaro/react-18-vs-react-19-key-differences-to-know-for-2025-1614)
-[8](https://pieces.app/blog/react-18-a-comprehensive-guide-to-the-latest-features-and-updates)
-[9](https://vite.dev/guide/)
-[10](https://github.com/expressjs/express/releases)
-[11](https://endoflife.date/express)
-[12](https://www.infoq.com/news/2025/01/express-5-released/)
-[13](https://expressjs.com)
+**Nota**: Este proyecto fue desarrollado como entrega académica para demostrar conocimientos en arquitectura web, servicios REST y computación en la nube.

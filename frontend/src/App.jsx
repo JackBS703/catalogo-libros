@@ -1,35 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import './App.css';
+import { healthCheck } from './services/api';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [status, setStatus] = useState('Conectando...');
+  const [error, setError] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    const checkBackend = async () => {
+      try {
+        const response = await healthCheck();
+        setStatus(`✅ Backend conectado: ${response.data.status}`);
+        setIsConnected(true);
+        setError(null);
+      } catch (err) {
+        setStatus('❌ Error al conectar con el backend');
+        setIsConnected(false);
+        setError(err.message);
+      }
+    };
+
+    checkBackend();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="App">
+      <h1>
+        📚 Sistema de Gestión de Catálogo de Libros
+      </h1>
+      
+      <div className="status-card">
+        <h2>Estado de la Conexión</h2>
+        <p className={isConnected ? 'success' : 'error'}>
+          {status}
+        </p>
+        {error && (
+          <p style={{ color: '#ef4444', fontSize: '0.9rem', marginTop: '10px' }}>
+            Error: {error}
+          </p>
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+      
+      <div className="info">
         <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
+          <strong>Frontend</strong>: http://localhost:5173
+        </p>
+        <p>
+          <strong>Backend</strong>: http://localhost:5000
+        </p>
+        <p style={{ marginTop: '20px', fontSize: '0.9rem', opacity: 0.9 }}>
+          ✨ Sistema listo para desarrollo
         </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
