@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getXMLReport, getStats, downloadXMLReport } from '../services/api';
+import { getXMLReport, downloadXMLReport } from '../services/api';
 import './Reports.css';
 
 /**
@@ -8,7 +8,6 @@ import './Reports.css';
  */
 function Reports() {
   const [xmlContent, setXmlContent] = useState('');
-  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('visual-tree');
@@ -31,22 +30,19 @@ function Reports() {
 
   const loadData = async () => {
     try {
-      setLoading(true);
-      const [xmlResponse, statsResponse] = await Promise.all([
-        getXMLReport(),
-        getStats()
-      ]);
-      
-      setXmlContent(xmlResponse.data);
-      setStats(statsResponse.data.data);
-      setError(null);
+        setLoading(true);
+        const xmlResponse = await getXMLReport();
+        
+        setXmlContent(xmlResponse.data);
+        setError(null);
     } catch (err) {
-      setError('Error al cargar los reportes');
-      console.error(err);
+        setError('Error al cargar los reportes');
+        console.error(err);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
+
 
   const handleDownload = async () => {
     try {
@@ -128,51 +124,41 @@ function Reports() {
       <FilterPanel filters={filters} setFilters={setFilters} toggleAllFilters={toggleAllFilters} />
 
       {/* Tabs */}
-      <div className="tabs-container">
+        <div className="tabs-container">
         <button
-          className={`tab ${activeTab === 'visual-tree' ? 'active' : ''}`}
-          onClick={() => setActiveTab('visual-tree')}
+            className={`tab ${activeTab === 'visual-tree' ? 'active' : ''}`}
+            onClick={() => setActiveTab('visual-tree')}
         >
-          🌳 Árbol Visual
+            🌳 Árbol Visual
         </button>
         <button
-          className={`tab ${activeTab === 'text-tree' ? 'active' : ''}`}
-          onClick={() => setActiveTab('text-tree')}
+            className={`tab ${activeTab === 'text-tree' ? 'active' : ''}`}
+            onClick={() => setActiveTab('text-tree')}
         >
-          🌲 Árbol Interactivo
+            🌲 Árbol Interactivo
         </button>
         <button
-          className={`tab ${activeTab === 'xml' ? 'active' : ''}`}
-          onClick={() => setActiveTab('xml')}
+            className={`tab ${activeTab === 'xml' ? 'active' : ''}`}
+            onClick={() => setActiveTab('xml')}
         >
-          📄 Contenido XML
+            📄 Contenido XML
         </button>
-        <button
-          className={`tab ${activeTab === 'stats' ? 'active' : ''}`}
-          onClick={() => setActiveTab('stats')}
-        >
-          📊 Estadísticas
-        </button>
-      </div>
+        </div>
 
-      {/* Contenido */}
-      <div className="reports-content">
+      {/* Contenido según tab activa */}
+        <div className="reports-content">
         {activeTab === 'visual-tree' && (
-          <VisualXMLTree xmlContent={xmlContent} filters={filters} />
+            <VisualXMLTree xmlContent={xmlContent} filters={filters} />
         )}
         
         {activeTab === 'text-tree' && (
-          <XMLTree xmlContent={xmlContent} filters={filters} />
+            <XMLTree xmlContent={xmlContent} filters={filters} />
         )}
         
         {activeTab === 'xml' && (
-          <XMLViewer xmlContent={applyFiltersToXML(xmlContent, filters)} filters={filters} />
+            <XMLViewer xmlContent={applyFiltersToXML(xmlContent, filters)} filters={filters} />
         )}
-        
-        {activeTab === 'stats' && stats && (
-          <StatsViewer stats={stats} filters={filters} />
-        )}
-      </div>
+        </div>
     </div>
   );
 }
@@ -234,64 +220,165 @@ function FilterPanel({ filters, setFilters, toggleAllFilters }) {
 }
 
 /**
- * Árbol Visual Gráfico (estilo diagrama)
+ * Árbol Visual Vertical con scroll horizontal
+ * Layout de arriba hacia abajo con ramas al mismo nivel
  */
 function VisualXMLTree({ xmlContent, filters }) {
-  const [treeData, setTreeData] = useState(null);
+  const [fullscreen, setFullscreen] = useState(false);
 
-  useEffect(() => {
-    if (xmlContent) {
-      const tree = parseXMLToVisualTree(xmlContent, filters);
-      setTreeData(tree);
-    }
-  }, [xmlContent, filters]);
-
-  const parseXMLToVisualTree = (xmlString, filters) => {
-    try {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
-      return buildVisualTree(xmlDoc.documentElement, filters);
-    } catch (error) {
-      console.error('Error parsing XML:', error);
-      return null;
-    }
-  };
-
-  const buildVisualTree = (node, filters) => {
-    const children = [];
-    
-    for (let i = 0; i < node.childNodes.length; i++) {
-      const child = node.childNodes[i];
-      if (child.nodeType === 1) { // Element node
-        const nodeName = child.nodeName;
-        const isFiltered = filters[nodeName] !== undefined ? filters[nodeName] : true;
-        
-        if (isFiltered) {
-          children.push({
-            name: nodeName,
-            filtered: isFiltered,
-            children: buildVisualTree(child, filters)
-          });
-        }
+  const treeStructure = {
+    name: 'catalogoLibros',
+    type: 'root',
+    children: [
+      {
+        name: 'resumen',
+        filtered: filters.resumen,
+        children: [
+          { name: 'totalLibros', filtered: filters.resumen },
+          { name: 'totalPaginas', filtered: filters.resumen },
+          { name: 'promedioPaginasPorLibro', filtered: filters.resumen },
+          { name: 'fechaGeneracion', filtered: filters.resumen },
+          { name: 'promedioAnioPublicacion', filtered: filters.resumen },
+          { name: 'rangoAnios', filtered: filters.resumen },
+          { name: 'editorialesUnicas', filtered: filters.resumen }
+        ]
+      },
+      {
+        name: 'estadisticasPorGenero',
+        filtered: filters.estadisticasPorGenero,
+        children: [
+          { name: 'total', filtered: filters.estadisticasPorGenero },
+          { name: 'genero', filtered: filters.estadisticasPorGenero, note: '(múltiples)' }
+        ]
+      },
+      {
+        name: 'estadisticasPorDecada',
+        filtered: filters.estadisticasPorDecada,
+        children: [
+          { name: 'total', filtered: filters.estadisticasPorDecada },
+          { name: 'decada', filtered: filters.estadisticasPorDecada, note: '(múltiples)' }
+        ]
+      },
+      {
+        name: 'estadisticasPorEditorial',
+        filtered: filters.estadisticasPorEditorial,
+        children: [
+          { name: 'total', filtered: filters.estadisticasPorEditorial },
+          { name: 'editorial', filtered: filters.estadisticasPorEditorial, note: '(top 10)' }
+        ]
+      },
+      {
+        name: 'topAutores',
+        filtered: filters.topAutores,
+        children: [
+          { name: 'autor', filtered: filters.topAutores, note: '(múltiples)' }
+        ]
+      },
+      {
+        name: 'rankings',
+        filtered: filters.rankings,
+        children: [
+          { name: 'libroMasAntiguo', filtered: filters.rankings },
+          { name: 'libroMasReciente', filtered: filters.rankings },
+          { name: 'libroMasLargo', filtered: filters.rankings },
+          { name: 'libroMasCorto', filtered: filters.rankings }
+        ]
+      },
+      {
+        name: 'analisisTemporal',
+        filtered: filters.analisisTemporal,
+        children: [
+          { name: 'librosUltimos5Anios', filtered: filters.analisisTemporal },
+          { name: 'librosUltimos10Anios', filtered: filters.analisisTemporal },
+          { name: 'librosMas50Anios', filtered: filters.analisisTemporal },
+          { name: 'decadaMasProductiva', filtered: filters.analisisTemporal }
+        ]
+      },
+      {
+        name: 'libros',
+        filtered: filters.libros,
+        children: [
+          {
+            name: 'libro',
+            filtered: filters.libros,
+            note: '(repetible)',
+            children: [
+              { name: 'titulo', filtered: filters.libros },
+              { name: 'autor', filtered: filters.libros },
+              { name: 'isbn', filtered: filters.libros },
+              { name: 'genero', filtered: filters.libros },
+              { name: 'anioPublicacion', filtered: filters.libros },
+              { name: 'editorial', filtered: filters.libros },
+              { name: 'numeroPaginas', filtered: filters.libros },
+              { name: 'descripcion', filtered: filters.libros }
+            ]
+          }
+        ]
       }
-    }
-
-    return children;
+    ]
   };
 
-  if (!treeData) {
-    return <div className="loading-spinner">🔨 Construyendo árbol visual...</div>;
-  }
+  const toggleFullscreen = (e) => {
+    e.stopPropagation();
+    setFullscreen(!fullscreen);
+  };
 
   return (
-    <div className="visual-tree">
-      <div className="tree-header">
-        <h3>🌳 Árbol Visual del XML</h3>
-        <p>Diagrama jerárquico con nodos resaltados según filtros aplicados</p>
+    <>
+      {fullscreen && <div className="fullscreen-backdrop"></div>}
+      
+      <div className={`visual-tree ${fullscreen ? 'fullscreen' : ''}`}>
+        <div className="tree-header">
+          <div>
+            <h3>🌳 Árbol Visual del XML</h3>
+            <p>Estructura completa de arriba hacia abajo con scroll horizontal</p>
+          </div>
+          <button onClick={toggleFullscreen} className="btn-fullscreen">
+            {fullscreen ? '🗗 Salir' : '⛶ Pantalla Completa'}
+          </button>
+        </div>
+
+        <div className="vertical-tree-scroll">
+          <div className="vertical-tree-container">
+            <VerticalTreeNode node={treeStructure} isRoot={true} />
+          </div>
+        </div>
       </div>
-      <div className="visual-tree-container">
-        <VisualTreeNode name="catalogoLibros" children={treeData} level={0} isRoot={true} />
+    </>
+  );
+}
+
+/**
+ * Nodo del árbol vertical (de arriba hacia abajo)
+ */
+function VerticalTreeNode({ node, isRoot = false }) {
+  const hasChildren = node.children && node.children.length > 0;
+  const isFiltered = node.filtered !== false;
+
+  return (
+    <div className="v-tree-node">
+      {/* Nodo actual */}
+      <div className={`v-node-box ${isRoot ? 'root' : ''} ${!isFiltered ? 'dimmed' : ''}`}>
+        <div className="v-node-text">
+          {node.name}
+          {node.note && <span className="v-node-note">{node.note}</span>}
+        </div>
       </div>
+
+      {/* Hijos en horizontal */}
+      {hasChildren && (
+        <div className="v-children-wrapper">
+          <div className="v-connector-vertical"></div>
+          <div className="v-children-horizontal">
+            {node.children.map((child, index) => (
+              <div key={index} className="v-child-branch">
+                <div className="v-connector-horizontal"></div>
+                <VerticalTreeNode node={child} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -462,75 +549,6 @@ function XMLViewer({ xmlContent, filters }) {
       <pre className="xml-content">
         <code>{xmlContent}</code>
       </pre>
-    </div>
-  );
-}
-
-function StatsViewer({ stats, filters }) {
-  return (
-    <div className="stats-viewer">
-      <div className="stats-header">
-        <h3>📊 Estadísticas del Catálogo</h3>
-        <p>Análisis según secciones seleccionadas</p>
-      </div>
-
-      {filters.resumen && (
-        <section className="stats-section">
-          <h4>📋 Resumen General</h4>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <span className="stat-label">Total de Libros:</span>
-              <span className="stat-value">{stats.resumen.totalLibros}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Total de Páginas:</span>
-              <span className="stat-value">{stats.resumen.totalPaginas.toLocaleString()}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Promedio Páginas/Libro:</span>
-              <span className="stat-value">{stats.resumen.promedioPaginasPorLibro}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Editoriales Únicas:</span>
-              <span className="stat-value">{stats.resumen.editorialesUnicas}</span>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {filters.estadisticasPorGenero && (
-        <section className="stats-section">
-          <h4>🎭 Distribución por Género</h4>
-          <div className="genre-list">
-            {stats.porGenero.map((genero, index) => (
-              <div key={index} className="genre-item">
-                <div className="genre-info">
-                  <strong>{genero.genero}</strong>
-                  <span>{genero.cantidad} libros ({genero.porcentaje.toFixed(1)}%)</span>
-                </div>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${genero.porcentaje}%` }}></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {filters.topAutores && stats.topAutores && (
-        <section className="stats-section">
-          <h4>✍️ Top Autores</h4>
-          <div className="authors-list">
-            {stats.topAutores.slice(0, 5).map((autor, index) => (
-              <div key={index} className="author-row">
-                <span className="rank">#{index + 1}</span>
-                <span className="name">{autor.autor}</span>
-                <span className="count">{autor.cantidad} libros</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }
