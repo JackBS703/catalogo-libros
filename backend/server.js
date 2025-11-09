@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 
 // Importar rutas
 const bookRoutes = require('./routes/bookRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.get('/api/health', (req, res) => {
 
 // Rutas de recursos
 app.use('/api/books', bookRoutes);
+app.use('/api/reports', reportRoutes); 
 
 const PORT = process.env.PORT || 5000;
 
