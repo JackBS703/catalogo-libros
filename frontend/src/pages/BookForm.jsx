@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createBook, getBookById, updateBook } from '../services/api';
+import { createBook, getBook, updateBook } from '../services/api';
 import './BookForm.css';
 
 /**
@@ -34,7 +34,7 @@ function BookForm() {
   const loadBook = async () => {
     try {
       setLoading(true);
-      const response = await getBookById(id);
+      const response = await getBook(id);
       setFormData(response.data.data);
     } catch (error) {
       console.error('Error al cargar el libro:', error);

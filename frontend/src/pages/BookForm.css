@@ -153,19 +153,31 @@
 /* ==================== ERROR MESSAGE ==================== */
 
 .error-message {
-  font-size: 0.8125rem;
+  font-size: 0.75rem !important;
   color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--danger);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem !important; /* Padding muy pequeño */
+  margin-top: 0.25rem;
   font-weight: 500;
-  display: flex;
+  display: inline-flex !important;
   align-items: center;
   gap: 0.25rem;
-  margin-top: -0.25rem;
+  width: fit-content !important;
+  max-width: 100%;
+  line-height: 1 !important; /* Sin espacio extra entre líneas */
+  min-height: auto !important; /* Quitar altura mínima */
+  height: auto !important;
 }
 
 .error-message::before {
-  content: '⚠️';
-  font-size: 0.875rem;
+  content: '⚠';
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  line-height: 1;
 }
+
 
 /* ==================== FORM ACTIONS ==================== */
 
