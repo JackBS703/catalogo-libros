@@ -17,6 +17,8 @@ body,
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-attachment: fixed; /* AGREGAR esta línea */
+  background-size: cover; /* AGREGAR esta línea */
   min-height: 100vh;
   color: #1f2937;
   -webkit-font-smoothing: antialiased;

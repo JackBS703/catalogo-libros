@@ -160,7 +160,7 @@ function Home() {
               </div>
 
               <div className="authors-list">
-                {stats.topAutores.map((autor, index) => (
+                {stats.topAutores.slice(0, 10).map((autor, index) => (
                   <div key={index} className="author-item" style={{ animationDelay: `${index * 0.1}s` }}>
                     <div className="author-rank">#{index + 1}</div>
                     <div className="author-info">

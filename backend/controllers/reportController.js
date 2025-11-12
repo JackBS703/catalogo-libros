@@ -275,7 +275,7 @@ function calcularEstadisticas(libros) {
     totalPaginas: e.totalPaginas
   })).sort((a, b) => b.cantidad - a.cantidad);
 
-  // Top autores
+  // Top autores - LIMITAR A 10
   const autores = {};
   libros.forEach(libro => {
     const autor = libro.autor || 'Autor desconocido';
@@ -298,7 +298,30 @@ function calcularEstadisticas(libros) {
     porcentaje: (a.cantidad / totalLibros) * 100,
     totalPaginas: a.totalPaginas,
     promedioAnio: a.anios.reduce((sum, year) => sum + year, 0) / a.anios.length
-  })).sort((a, b) => b.cantidad - a.cantidad);
+  })).sort((a, b) => b.cantidad - a.cantidad).slice(0, 10); // AGREGAR .slice(0, 10)
+
+  // AGREGAR: Rankings
+  const librosConPaginas = libros.filter(l => l.numeroPaginas && l.numeroPaginas > 0);
+  const libroMasAntiguo = libros.reduce((min, libro) => 
+    libro.anioPublicacion < min.anioPublicacion ? libro : min, libros[0]);
+  const libroMasReciente = libros.reduce((max, libro) => 
+    libro.anioPublicacion > max.anioPublicacion ? libro : max, libros[0]);
+  const libroMasLargo = librosConPaginas.length > 0 
+    ? librosConPaginas.reduce((max, libro) => 
+        libro.numeroPaginas > max.numeroPaginas ? libro : max, librosConPaginas[0])
+    : null;
+  const libroMasCorto = librosConPaginas.length > 0
+    ? librosConPaginas.reduce((min, libro) => 
+        libro.numeroPaginas < min.numeroPaginas ? libro : min, librosConPaginas[0])
+    : null;
+
+  // AGREGAR: Análisis temporal
+  const anioActual = new Date().getFullYear();
+  const librosUltimos5Anios = libros.filter(l => l.anioPublicacion >= anioActual - 5).length;
+  const librosUltimos10Anios = libros.filter(l => l.anioPublicacion >= anioActual - 10).length;
+  const librosMas50Anios = libros.filter(l => anioActual - l.anioPublicacion > 50).length;
+  const decadaMasProductiva = porDecada.reduce((max, d) => 
+    d.cantidad > max.cantidad ? d : max, porDecada[0]);
 
   return {
     resumen: {
@@ -314,7 +337,20 @@ function calcularEstadisticas(libros) {
     porGenero,
     porDecada,
     porEditorial,
-    topAutores
+    topAutores, // Ahora limitado a 10
+    // AGREGAR estas dos secciones:
+    rankings: {
+      libroMasAntiguo,
+      libroMasReciente,
+      libroMasLargo,
+      libroMasCorto
+    },
+    analisisTemporal: {
+      librosUltimos5Anios,
+      librosUltimos10Anios,
+      librosMas50Anios,
+      decadaMasProductiva: decadaMasProductiva.decada
+    }
   };
 }
 
