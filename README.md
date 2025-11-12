@@ -238,16 +238,16 @@ npm run preview    # Previsualiza build de producción
 - [x] Conexión a MongoDB Atlas establecida
 - [x] Interfaz de prueba con estado de conexión
 - [x] Diseño mejorado de la página de inicio
+- [x] Modelo de Libro (Mongoose schema)
+- [x] ontroladores CRUD
+- [x] Rutas de API REST
+- [x] Componentes React para formulario de libros
+- [x] Componentes React para listar libros
+- [x] Sistema de informes XML
+- [x] Visualización de árbol XML
+- [x] Cálculo de estadísticas
 
 ### ⏳ En desarrollo
-- [ ] Modelo de Libro (Mongoose schema)
-- [ ] Controladores CRUD
-- [ ] Rutas de API REST
-- [ ] Componentes React para formulario de libros
-- [ ] Componentes React para listar libros
-- [ ] Sistema de informes XML
-- [ ] Visualización de árbol XML
-- [ ] Cálculo de estadísticas
 - [ ] Despliegue en Render
 
 ## 👥 Autores
