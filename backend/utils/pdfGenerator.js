@@ -1,8 +1,9 @@
 const PDFDocument = require('pdfkit');
 
 /**
- * Generador de PDFs ultra-simplificado sin moveDown() para evitar NaN
- * Usa solo coordenadas absolutas
+ * Generador de PDFs con estilo de la aplicación
+ * SIN emojis (causan caracteres raros)
+ * SIN páginas en blanco (control preciso de paginación)
  */
 class PDFReportBuilder {
   constructor() {
@@ -12,104 +13,134 @@ class PDFReportBuilder {
       bufferPages: true
     });
     
-    this.currentY = 80; // Posición Y inicial
+    // Colores de la aplicación
+    this.colors = {
+      primary: [102, 126, 234],      // #667eea
+      primaryDark: [85, 104, 211],   // #5568d3
+      secondary: [118, 75, 162],     // #764ba2
+      success: [34, 197, 94],        // #22c55e
+      gray900: [31, 41, 55],         // #1f2937
+      gray700: [55, 65, 81],         // #374151
+      gray600: [75, 85, 99],         // #4b5563
+      gray500: [107, 114, 128],      // #6b7280
+      gray300: [209, 213, 219],      // #d1d5db
+      gray100: [243, 244, 246],      // #f3f4f6
+      white: [255, 255, 255]
+    };
+    
+    this.currentY = 80;
   }
 
   /**
-   * Añade encabezado
+   * Añade encabezado con degradado
    */
   addHeader(title, subtitle = '') {
+    const headerHeight = subtitle ? 100 : 75;
+    
+    // Degradado de primary a secondary
+    for (let i = 0; i < headerHeight; i++) {
+      const ratio = i / headerHeight;
+      const r = Math.round(this.colors.primary[0] + (this.colors.secondary[0] - this.colors.primary[0]) * ratio);
+      const g = Math.round(this.colors.primary[1] + (this.colors.secondary[1] - this.colors.primary[1]) * ratio);
+      const b = Math.round(this.colors.primary[2] + (this.colors.secondary[2] - this.colors.primary[2]) * ratio);
+      
+      this.doc
+        .rect(0, i, 595.28, 1)
+        .fillColor([r, g, b])
+        .fill();
+    }
+    
+    // Título
     this.doc
       .font('Helvetica-Bold')
-      .fontSize(24)
-      .fillColor('#355934')
-      .text(title, 50, 50, { align: 'center', width: 495 });
+      .fontSize(26)
+      .fillColor(this.colors.white)
+      .text(title, 50, 25, { align: 'center', width: 495 });
 
     if (subtitle) {
       this.doc
         .font('Helvetica')
         .fontSize(12)
-        .fillColor('#666666')
-        .text(subtitle, 50, 85, { align: 'center', width: 495 });
+        .fillColor([255, 255, 255, 0.95])
+        .text(subtitle, 50, 60, { align: 'center', width: 495 });
       
       this.currentY = 115;
     } else {
       this.currentY = 90;
     }
 
-    // Línea separadora
-    this.doc
-      .moveTo(50, this.currentY)
-      .lineTo(545, this.currentY)
-      .strokeColor('#AD5940')
-      .lineWidth(2)
-      .stroke();
-
-    this.currentY += 15;
     return this;
   }
 
   /**
-   * Añade resumen
+   * Añade resumen - SIN EMOJI
    */
   addSummarySection(stats) {
-    this._checkPageSpace(150);
+    this._checkPageSpace(180);
     
     this.doc
       .font('Helvetica-Bold')
-      .fontSize(14)
-      .fillColor('#355934')
+      .fontSize(16)
+      .fillColor(this.colors.primary)
       .text('RESUMEN GENERAL', 50, this.currentY);
     
-    this.currentY += 25;
+    this.currentY += 30;
 
     const { totalLibros, totalPaginas, promedioPaginasPorLibro, 
             promedioAnioPublicacion, editorialesUnicas } = stats.resumen;
 
     const data = [
       ['Total de Libros', totalLibros],
-      ['Total de Páginas', totalPaginas.toLocaleString('es-CO')],
-      ['Promedio Páginas/Libro', Math.round(promedioPaginasPorLibro)],
-      ['Año Promedio Publicación', Math.round(promedioAnioPublicacion)],
-      ['Editoriales Únicas', editorialesUnicas]
+      ['Total de Paginas', totalPaginas.toLocaleString('es-CO')],
+      ['Promedio Paginas/Libro', Math.round(promedioPaginasPorLibro)],
+      ['Año Promedio Publicacion', Math.round(promedioAnioPublicacion)],
+      ['Editoriales Unicas', editorialesUnicas]
     ];
 
-    data.forEach(([label, value]) => {
-      this._checkPageSpace(25);
+    data.forEach(([label, value], index) => {
+      this._checkPageSpace(30);
+      
+      // Fondo alternado
+      if (index % 2 === 0) {
+        this.doc
+          .rect(50, this.currentY - 5, 495, 28)
+          .fillColor(this.colors.gray100)
+          .fill();
+      }
       
       this.doc
         .font('Helvetica')
         .fontSize(11)
-        .fillColor('#555555')
+        .fillColor(this.colors.gray700)
         .text(label, 70, this.currentY);
       
       this.doc
         .font('Helvetica-Bold')
-        .fillColor('#355934')
+        .fillColor(this.colors.primary)
         .text(String(value), 320, this.currentY, { width: 200, align: 'right' });
       
-      this.currentY += 22;
+      this.currentY += 28;
     });
 
-    this.currentY += 20;
+    this.currentY += 25;
     return this;
   }
 
   /**
-   * Añade estadísticas por género
+   * Añade estadísticas por género - SIN EMOJI
    */
   addGenreStatistics(genreStats) {
-    this._checkPageSpace(150);
+    this._checkPageSpace(180);
     
     this.doc
       .font('Helvetica-Bold')
-      .fontSize(14)
-      .fillColor('#355934')
+      .fontSize(16)
+      .fillColor(this.colors.primary)
       .text('ESTADISTICAS POR GENERO', 50, this.currentY);
     
-    this.currentY += 25;
+    this.currentY += 30;
 
-    this._renderSimpleTable(
+    this._renderTable(
       ['Genero', 'Cantidad', 'Porcentaje', 'Total Paginas'],
       genreStats.map(g => [
         g.genero,
@@ -120,25 +151,25 @@ class PDFReportBuilder {
       [140, 80, 100, 120]
     );
 
-    this.currentY += 20;
+    this.currentY += 25;
     return this;
   }
 
   /**
-   * Añade estadísticas por década
+   * Añade estadísticas por década - SIN EMOJI
    */
   addDecadeStatistics(decadeStats) {
-    this._checkPageSpace(150);
+    this._checkPageSpace(180);
     
     this.doc
       .font('Helvetica-Bold')
-      .fontSize(14)
-      .fillColor('#355934')
+      .fontSize(16)
+      .fillColor(this.colors.primary)
       .text('ESTADISTICAS POR DECADA', 50, this.currentY);
     
-    this.currentY += 25;
+    this.currentY += 30;
 
-    this._renderSimpleTable(
+    this._renderTable(
       ['Decada', 'Cantidad', 'Porcentaje', 'Rango Años'],
       decadeStats.map(d => [
         d.decada,
@@ -149,25 +180,25 @@ class PDFReportBuilder {
       [100, 80, 100, 160]
     );
 
-    this.currentY += 20;
+    this.currentY += 25;
     return this;
   }
 
   /**
-   * Añade top autores
+   * Añade top autores - SIN EMOJI
    */
   addTopAuthors(topAutores) {
-    this._checkPageSpace(150);
+    this._checkPageSpace(180);
     
     this.doc
       .font('Helvetica-Bold')
-      .fontSize(14)
-      .fillColor('#355934')
+      .fontSize(16)
+      .fillColor(this.colors.primary)
       .text('TOP 10 AUTORES', 50, this.currentY);
     
-    this.currentY += 25;
+    this.currentY += 30;
 
-    this._renderSimpleTable(
+    this._renderTable(
       ['Autor', 'Libros', 'Porcentaje', 'Total Paginas'],
       topAutores.slice(0, 10).map(a => [
         a.autor,
@@ -178,25 +209,25 @@ class PDFReportBuilder {
       [180, 60, 90, 110]
     );
 
-    this.currentY += 20;
+    this.currentY += 25;
     return this;
   }
 
   /**
-   * Añade catálogo de libros
+   * Añade catálogo de libros - SIN EMOJI
    */
   addBooksCatalog(libros, maxBooks = 50) {
-    this._checkPageSpace(150);
+    this._checkPageSpace(180);
     
     this.doc
       .font('Helvetica-Bold')
-      .fontSize(14)
-      .fillColor('#355934')
+      .fontSize(16)
+      .fillColor(this.colors.primary)
       .text('CATALOGO DE LIBROS', 50, this.currentY);
     
-    this.currentY += 25;
+    this.currentY += 30;
 
-    this._renderSimpleTable(
+    this._renderTable(
       ['Titulo', 'Autor', 'Año', 'Pag.', 'Genero'],
       libros.slice(0, maxBooks).map(libro => [
         this._truncate(libro.titulo, 35),
@@ -212,41 +243,12 @@ class PDFReportBuilder {
       this.doc
         .font('Helvetica')
         .fontSize(9)
-        .fillColor('#666666')
+        .fillColor(this.colors.gray600)
         .text(`* Mostrando ${maxBooks} de ${libros.length} libros`, 50, this.currentY, { 
           align: 'right',
           width: 495
         });
-      this.currentY += 15;
-    }
-
-    return this;
-  }
-
-  /**
-   * Añade footer
-   */
-  addFooter() {
-    const range = this.doc.bufferedPageRange();
-    const fecha = new Date().toLocaleString('es-CO', { 
-      dateStyle: 'short', 
-      timeStyle: 'short' 
-    });
-    
-    for (let i = 0; i < range.count; i++) {
-      this.doc.switchToPage(i);
-      
-      const footerY = 807; // Posición fija cerca del final (A4 = 842pt)
-      
-      this.doc
-        .font('Helvetica')
-        .fontSize(8)
-        .fillColor('#999999')
-        .text(`Generado: ${fecha}`, 50, footerY, { width: 240 })
-        .text(`Pagina ${i + 1} de ${range.count}`, 320, footerY, { 
-          width: 225, 
-          align: 'right' 
-        });
+      this.currentY += 20;
     }
 
     return this;
@@ -268,61 +270,61 @@ class PDFReportBuilder {
   // =================== HELPERS ===================
 
   /**
-   * Verifica si hay espacio en la página
+   * Verifica espacio - OPTIMIZADO para evitar páginas en blanco
    */
   _checkPageSpace(needed) {
-    if (this.currentY + needed > 750) { // Dejar margen para footer
+    // Dejar margen generoso de 70px para footer
+    if (this.currentY + needed > 730) {
       this.doc.addPage();
       this.currentY = 50;
     }
   }
 
   /**
-   * Renderiza tabla simple
+   * Renderiza tabla
    */
-  _renderSimpleTable(headers, rows, widths) {
+  _renderTable(headers, rows, widths) {
     const startX = 50;
-    const rowHeight = 20;
+    const rowHeight = 22;
+    const estimatedHeight = 30 + (rows.length * rowHeight);
 
-    // Headers
-    this._checkPageSpace(25 + rows.length * rowHeight);
+    // Verificar espacio para tabla completa
+    this._checkPageSpace(estimatedHeight);
     
+    // Headers con fondo primary
+    this.doc
+      .rect(startX, this.currentY, widths.reduce((a, b) => a + b), 22)
+      .fillAndStroke(this.colors.primary, this.colors.primary);
+
     this.doc
       .font('Helvetica-Bold')
       .fontSize(10)
-      .fillColor('#355934');
+      .fillColor(this.colors.white);
 
     let x = startX;
     headers.forEach((h, i) => {
-      this.doc.text(h, x, this.currentY, { width: widths[i], align: 'center' });
+      this.doc.text(h, x, this.currentY + 6, { width: widths[i], align: 'center' });
       x += widths[i];
     });
 
-    this.currentY += 18;
-
-    // Línea
-    this.doc
-      .moveTo(startX, this.currentY)
-      .lineTo(startX + widths.reduce((a, b) => a + b), this.currentY)
-      .strokeColor('#AD5940')
-      .stroke();
-
-    this.currentY += 5;
+    this.currentY += 25;
 
     // Rows
-    this.doc.font('Helvetica').fontSize(9).fillColor('#000000');
+    this.doc.font('Helvetica').fontSize(9);
 
     rows.forEach((row, idx) => {
-      this._checkPageSpace(rowHeight);
+      // Verificar espacio para cada fila
+      this._checkPageSpace(rowHeight + 10);
 
       // Fondo alternado
       if (idx % 2 === 0) {
         this.doc
           .rect(startX, this.currentY - 3, widths.reduce((a, b) => a + b), rowHeight)
-          .fillColor('#f5f5f5')
-          .fill()
-          .fillColor('#000000');
+          .fillColor(this.colors.gray100)
+          .fill();
       }
+
+      this.doc.fillColor(this.colors.gray900);
 
       x = startX;
       row.forEach((cell, i) => {
@@ -341,12 +343,9 @@ class PDFReportBuilder {
       this.currentY += rowHeight;
     });
 
-    this.currentY += 10;
+    this.currentY += 5;
   }
 
-  /**
-   * Trunca texto
-   */
   _truncate(text, max) {
     if (!text) return 'N/A';
     return text.length > max ? text.substring(0, max - 3) + '...' : text;
@@ -374,7 +373,6 @@ async function generateCatalogoPDF(libros, estadisticas) {
       .addDecadeStatistics(estadisticas.porDecada)
       .addTopAuthors(estadisticas.topAutores)
       .addBooksCatalog(libros)
-      .addFooter();
 
     return await builder.build();
   } catch (error) {
