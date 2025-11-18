@@ -7,7 +7,7 @@ Sistema web full-stack para la gestión de catálogo de libros con generación d
 
 ## 📋 Descripción
 
-Aplicación web que permite realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar) sobre un catálogo de libros, con funcionalidad de generación de informes estadísticos en formato XML.
+El presente proyecto consiste en el desarrollo de un sistema web de gestión de catálogo de libros utilizando arquitectura de servicios web REST y computación en la nube. El sistema permitirá realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar) sobre una base de datos de libros, además de generar informes en formato XML que muestren estadísticas del catálogo como totales y porcentajes por categoría. La solución se implementará con Node.js y Express para el backend, React para el frontend, MongoDB Atlas como base de datos en la nube, y se desplegará completamente en servicios cloud públicos mediante Render. Como componente de aprendizaje independiente, se utilizará render y vercel para realizar el despliegue más vite para el front.
 
 ## 🚀 Tecnologías y Versiones
 
