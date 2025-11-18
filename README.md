@@ -1,7 +1,7 @@
 
 ---
 
-# 📚 Sistema de Gestión de Catálogo de Libros
+# 📚 BookAnalytics
 
 Sistema web full-stack para la gestión de catálogo de libros con generación de informes XML. Desarrollado con arquitectura REST y desplegado en la nube.
 
@@ -32,7 +32,7 @@ Aplicación web que permite realizar operaciones CRUD (Crear, Leer, Actualizar, 
 - **MongoDB Atlas**: Cluster M0 (gratuito)
 
 ### Despliegue
-- **Frontend**: Render Static Site
+- **Frontend**: Vercel
 - **Backend**: Render Web Service
 
 ## 📁 Estructura del Proyecto
@@ -125,7 +125,7 @@ npm install
 VITE_API_URL=http://localhost:5000
 ```
 
-## 🏃‍♂️ Ejecutar en Desarrollo
+## Ejecutar en Desarrollo
 
 ### Terminal 1 - Backend
 
@@ -156,46 +156,7 @@ VITE v6.0.1  ready in XXX ms
 ### Abrir en el navegador
 
 - **Frontend**: http://localhost:5173
-- **Backend**: http://localhost:5000 (prueba la API)
-
-## 🔌 Endpoints de la API (Por implementar)
-
-### Libros (CRUD)
-
-| Método | Endpoint | Descripción | Estado |
-|--------|----------|-------------|--------|
-| GET | `/api/books` | Obtener todos los libros | ⏳ Por hacer |
-| GET | `/api/books/:id` | Obtener un libro por ID | ⏳ Por hacer |
-| POST | `/api/books` | Crear un nuevo libro | ⏳ Por hacer |
-| PUT | `/api/books/:id` | Actualizar un libro | ⏳ Por hacer |
-| DELETE | `/api/books/:id` | Eliminar un libro | ⏳ Por hacer |
-
-### Informes XML
-
-| Método | Endpoint | Descripción | Estado |
-|--------|----------|-------------|--------|
-| GET | `/api/reports/xml` | Generar informe XML completo | ⏳ Por hacer |
-| GET | `/api/reports/stats` | Obtener estadísticas en JSON | ⏳ Por hacer |
-| GET | `/api/reports/download` | Descargar archivo XML | ⏳ Por hacer |
-
-## 📊 Modelo de Datos
-
-### Libro (Book)
-
-```
-{
-  _id: ObjectId,
-  titulo: String (requerido),
-  autor: String (requerido),
-  isbn: String (requerido, único),
-  genero: String (requerido),
-  anioPublicacion: Number (requerido),
-  editorial: String,
-  numeroPaginas: Number,
-  descripcion: String,
-  fechaRegistro: Date (auto-generado)
-}
-```
+- **Backend**: http://localhost:5000 (API)
 
 ## 📦 Scripts Disponibles
 
@@ -246,13 +207,16 @@ npm run preview    # Previsualiza build de producción
 - [x] Sistema de informes XML
 - [x] Visualización de árbol XML
 - [x] Cálculo de estadísticas
+- [x] Despliegue en Render
 
-### ⏳ En desarrollo
-- [ ] Despliegue en Render
+## 🚀 Demo en Producción
+
+- **Frontend (Vercel):** [https://catalogo-libros-eta.vercel.app/](https://catalogo-libros-eta.vercel.app/)
+- **Backend (Render):** [https://catalogo-backend-kca0.onrender.com/](https://catalogo-backend-kca0.onrender.com/)
 
 ## 👥 Autores
-
-Mariana Montoya Sepulveda - Mateo Berrio Cardona
+- Mateo Berrio Cardona
+- Mariana Montoya Sepúlveda
 
 ## 📅 Fecha de Entrega
 
