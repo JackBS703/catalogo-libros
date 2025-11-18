@@ -15,7 +15,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:5173',  // Desarrollo local
-    'https://catalogo-libros-eta.vercel.app/'  // CAMBIAR por tu URL de Vercel
+    'https://catalogo-libros-eta.vercel.app/'  // URL de Vercel
   ],
   credentials: true
 }));
